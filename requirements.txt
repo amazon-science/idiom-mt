@@ -1,5 +1,5 @@
 matplotlib==3.4.2
-numpy==1.20.3
+numpy==1.22.0
 googletrans==4.0.0rc1
 more_itertools==8.8.0
 editdistance==0.5.3
