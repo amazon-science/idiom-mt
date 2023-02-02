@@ -1,5 +1,9 @@
 # Idiom-MT
 
+If you use this repository for your research, please cite:
+
+[Automatic Evaluation and Analysis of Idioms in Neural Machine Translation](https://arxiv.org/abs/2210.04545). Christos Baziotis, Prashant Mathur, Eva Hasler. EACL 2023.
+
 The goal of the project is to address the problem of literal translations in
 machine translation systems. This problem is particularly pronounced during the
 translation of idiomatic expressions, such as “couch potato” or “once in a blue
