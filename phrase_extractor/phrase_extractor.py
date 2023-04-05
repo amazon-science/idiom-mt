@@ -177,10 +177,9 @@ def get_miner(nlp, matcher, doc_file):
     iterator = tqdm(pipeline, total=num_lines, desc=get_desc())
     for i, doc in enumerate(iterator):
         matches = doc._.matches
-        if len(matches) > 0:
-            num_matches += 1
-            iterator.set_description(get_desc())
-            yield i, doc, matches
+        num_matches += 1
+        iterator.set_description(get_desc())
+        yield i, doc, matches
 
 
 def main(cfg, viz=True):
@@ -222,6 +221,15 @@ def main(cfg, viz=True):
 
             with open(annot_file, "a") as f:
                 f.write("\t".join([str(line_id), name, str(spans), text]))
+                f.write("\n")
+        elif cfg.line_aligned:
+            with open(sent_file, "a") as f:
+                f.write("\n")
+
+            with open(span_file, "a") as f:
+                f.write("\n")
+
+            with open(annot_file, "a") as f:
                 f.write("\n")
 
     logging.info(f"Finished!")
@@ -268,6 +276,9 @@ if __name__ == '__main__':
                              'therefore `sm` offers the best trade-off.')
     parser.add_argument('--min-length',
                         help='The minimum number of words for keeping a sentence.')
+    parser.add_argument('--line-aligned', action='store_true', default=False,
+                        help='Output an empty line when there is no match found for the sentence, '
+                             'so all output files remain line-aligned with the input.')
 
     args = parser.parse_args()
 
