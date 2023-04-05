@@ -224,7 +224,7 @@ def main(cfg, viz=True):
                 f.write("\n")
         elif cfg.line_aligned:
             with open(sent_file, "a") as f:
-                f.write("\n")
+                f.write(text + "\n")
 
             with open(span_file, "a") as f:
                 f.write("\n")
