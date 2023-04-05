@@ -569,6 +569,9 @@ if __name__ == '__main__':
         for i, (src_line, ref_line, hyp_line, sp_line) \
                 in enumerate(zip(fsrc, fref, fhyp, fspan)):
 
+            if sp_line.strip() == "":
+                continue
+
             logging.info("\n")
 
             label, span = sp_line.split("\t")

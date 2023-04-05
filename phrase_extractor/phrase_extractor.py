@@ -158,7 +158,7 @@ def get_matcher(phrase_file, nlp):
     return matcher
 
 
-def get_miner(nlp, matcher, doc_file):
+def get_miner(nlp, matcher, doc_file, line_aligned=False):
     """
     Return sentences that contain at least one match
     """
@@ -180,13 +180,14 @@ def get_miner(nlp, matcher, doc_file):
         if len(matches) > 0:
             num_matches += 1
             iterator.set_description(get_desc())
+        if line_aligned or len(matches) > 0:
             yield i, doc, matches
 
 
 def main(cfg, viz=True):
     nlp = get_nlp_model(cfg.lang, cfg.model_size)
     matcher = get_matcher(cfg.phrases, nlp)
-    miner = get_miner(nlp, matcher, cfg.corpus)
+    miner = get_miner(nlp, matcher, cfg.corpus, cfg.line_aligned)
     stats = collections.OrderedDict((nlp.vocab.strings[p], 0)
                                     for p in matcher._patterns)
 
@@ -222,6 +223,15 @@ def main(cfg, viz=True):
 
             with open(annot_file, "a") as f:
                 f.write("\t".join([str(line_id), name, str(spans), text]))
+                f.write("\n")
+        elif cfg.line_aligned:
+            with open(sent_file, "a") as f:
+                f.write(text + "\n")
+
+            with open(span_file, "a") as f:
+                f.write("\n")
+
+            with open(annot_file, "a") as f:
                 f.write("\n")
 
     logging.info(f"Finished!")
@@ -268,6 +278,9 @@ if __name__ == '__main__':
                              'therefore `sm` offers the best trade-off.')
     parser.add_argument('--min-length',
                         help='The minimum number of words for keeping a sentence.')
+    parser.add_argument('--line-aligned', action='store_true', default=False,
+                        help='Output an empty line when there is no match found for the sentence, '
+                             'so all output files remain line-aligned with the input.')
 
     args = parser.parse_args()
 
