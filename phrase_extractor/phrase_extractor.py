@@ -158,7 +158,7 @@ def get_matcher(phrase_file, nlp):
     return matcher
 
 
-def get_miner(nlp, matcher, doc_file):
+def get_miner(nlp, matcher, doc_file, line_aligned=False):
     """
     Return sentences that contain at least one match
     """
@@ -177,15 +177,17 @@ def get_miner(nlp, matcher, doc_file):
     iterator = tqdm(pipeline, total=num_lines, desc=get_desc())
     for i, doc in enumerate(iterator):
         matches = doc._.matches
-        num_matches += 1
-        iterator.set_description(get_desc())
-        yield i, doc, matches
+        if len(matches) > 0:
+            num_matches += 1
+            iterator.set_description(get_desc())
+        if line_aligned or len(matches) > 0:
+            yield i, doc, matches
 
 
 def main(cfg, viz=True):
     nlp = get_nlp_model(cfg.lang, cfg.model_size)
     matcher = get_matcher(cfg.phrases, nlp)
-    miner = get_miner(nlp, matcher, cfg.corpus)
+    miner = get_miner(nlp, matcher, cfg.corpus, cfg.line_aligned)
     stats = collections.OrderedDict((nlp.vocab.strings[p], 0)
                                     for p in matcher._patterns)
 
