@@ -2,6 +2,7 @@ import argparse
 import itertools
 import logging
 import os
+import sys
 import unicodedata
 from collections import defaultdict
 from string import punctuation
@@ -10,11 +11,13 @@ from urllib.request import urlretrieve
 import editdistance
 import numpy as np
 import spacy
+from stoplists import cn
 from nltk.corpus import stopwords
 from sacremoses import MosesTokenizer
 from scipy.stats import pearsonr, spearmanr
 from tqdm import tqdm
 from word2word import Word2word
+import chinese_converter
 
 
 def get_stopwords(langcode):
@@ -42,7 +45,10 @@ def get_stopwords(langcode):
         "ta": "tamil",
     }
 
-    return set(stopwords.words(code2lang[langcode]))
+    if langcode != "zh":
+        return set(stopwords.words(code2lang[langcode]))
+    else:
+        return set(cn.stopwords)
 
 
 def get_spacy_model_name(lang, size='sm'):
@@ -82,6 +88,10 @@ def get_spacy_model_name(lang, size='sm'):
 def get_tokenizer(args, lang):
     if args.tokenizer == "moses":
         tok = MosesTokenizer(lang=lang)
+        if lang in ["zh", "ja"]:
+            sys.stderr.write(
+                "Warning: Moses tokenizer won't work well for languages without word boundaries (zh, ja). " \
+                "Are you sure this is what you want?\n")
 
         def tokenizer(text):
             return tok.tokenize(text, aggressive_dash_splits=True)
@@ -629,6 +639,20 @@ if __name__ == '__main__':
                 # empty candidate list, e.g., no dictionary entries.
                 # It's extremely rare, mut it might happen
                 continue
+
+            # extra step for Chinese: make sure both traditional and simplified are included
+            if args.src_lang == "zh":
+                raise NotImplementedError(
+                    "We do not support Chinese as the source language right now.")
+            if args.trg_lang == "zh":
+                items = candidates.items()
+                for key, val in items:
+                    val_copy = list(val)
+                    for word in val_copy:
+                        val_zhxt = chinese_converter.to_traditional(word)
+                        val_zhcn = chinese_converter.to_simplified(word)
+                        candidates[key].add(val_zhxt)
+                        candidates[key].add(val_zhcn)
 
             candidates_bow = set.union(*candidates.values())
             # ------------------------------------------------------------------

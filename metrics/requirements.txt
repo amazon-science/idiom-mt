@@ -3,3 +3,7 @@ spacy==3.0.6
 word2word==1.0.0
 sacrebleu==1.4.14
 sacremoses==0.0.35
+nltk==3.8.1
+editdistance==0.6.2
+scipy==1.10.0
+chinese-converter==1.0.2
